@@ -1,197 +1,186 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  FaUser,
-  FaEnvelope,
-  FaLock,
-  FaEye,
-  FaEyeSlash,
-} from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import API from "../services/api";
 
 function Signup() {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await API.post("/auth/signup", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      alert(res.data.message);
+
+      navigate("/");
+    } catch (err) {
+      alert(err.response?.data?.message || "Signup Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-6 py-10">
-      <div className="w-full max-w-6xl grid lg:grid-cols-2 rounded-3xl overflow-hidden shadow-2xl border border-slate-800">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
 
-        {/* Left Section */}
+      <div className="w-full max-w-lg bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-10">
 
-        <div className="hidden lg:flex flex-col justify-center bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 p-14 text-white">
-
-          <h1 className="text-5xl font-bold leading-tight">
-            Air Quality
-            <br />
-            Analytics
-            <br />
-            Dashboard
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white">
+            Create Account
           </h1>
 
-          <p className="mt-8 text-lg text-blue-100 leading-8">
-            Monitor air quality, weather conditions,
-            pollutant levels and health recommendations
-            from one intelligent dashboard.
+          <p className="text-gray-400 mt-2">
+            Air Quality Analytics Dashboard
           </p>
+        </div>
 
-          <div className="grid grid-cols-2 gap-5 mt-14">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
 
-            <div className="bg-white/20 rounded-2xl p-6 backdrop-blur-md">
-              <h2 className="text-4xl font-bold">200+</h2>
-              <p className="mt-2 text-blue-100">
-                Cities Covered
-              </p>
-            </div>
+          {/* Name */}
 
-            <div className="bg-white/20 rounded-2xl p-6 backdrop-blur-md">
-              <h2 className="text-4xl font-bold">24/7</h2>
-              <p className="mt-2 text-blue-100">
-                Live Monitoring
-              </p>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-300">
+              Full Name
+            </label>
+
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your full name"
+              required
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            />
+          </div>
+
+          {/* Email */}
+
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-300">
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            />
+          </div>
+
+          {/* Password */}
+
+          <div>
+
+            <label className="block mb-2 text-sm font-medium text-gray-300">
+              Password
+            </label>
+
+            <div className="relative">
+
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Create password"
+                required
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+
             </div>
 
           </div>
 
-        </div>
+          {/* Confirm Password */}
 
-        {/* Right Section */}
+          <div>
 
-        <div className="bg-slate-900 p-8 md:p-12">
+            <label className="block mb-2 text-sm font-medium text-gray-300">
+              Confirm Password
+            </label>
 
-          <div className="text-center">
-
-            <h2 className="text-4xl font-bold text-white">
-              Create Account
-            </h2>
-
-            <p className="mt-3 text-slate-400">
-              Air Quality Analytics Dashboard
-            </p>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm password"
+              required
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            />
 
           </div>
 
-          <form className="mt-10 space-y-6">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-xl font-semibold text-lg transition duration-300"
+          >
+            {loading ? "Creating Account..." : "Create Account"}
+          </button>
 
-            {/* Full Name */}
+        </form>
 
-            <div>
+        <p className="mt-8 text-center text-gray-400 text-sm">
+          Already have an account?
 
-              <label className="block text-slate-300 mb-2">
-                Full Name
-              </label>
-
-              <div className="relative">
-
-                <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-
-                <input
-                  type="text"
-                  placeholder="Enter your full name"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                />
-
-              </div>
-
-            </div>
-
-            {/* Email */}
-
-            <div>
-
-              <label className="block text-slate-300 mb-2">
-                Email
-              </label>
-
-              <div className="relative">
-
-                <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                />
-
-              </div>
-
-            </div>
-
-            {/* Password */}
-
-            <div>
-
-              <label className="block text-slate-300 mb-2">
-                Password
-              </label>
-
-              <div className="relative">
-
-                <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Create password"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-12 py-3 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* Confirm Password */}
-
-            <div>
-
-              <label className="block text-slate-300 mb-2">
-                Confirm Password
-              </label>
-
-              <div className="relative">
-
-                <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-
-                <input
-                  type="password"
-                  placeholder="Confirm password"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                />
-
-              </div>
-
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition duration-300 text-white font-semibold text-lg"
-            >
-              Create Account
-            </button>
-
-          </form>
-
-          <p className="mt-8 text-center text-slate-400">
-
-            Already have an account?
-
-            <Link
-              to="/"
-              className="ml-2 text-blue-500 hover:text-blue-400 font-semibold"
-            >
-              Login
-            </Link>
-
-          </p>
-
-        </div>
+          <Link
+            to="/"
+            className="ml-2 text-blue-500 hover:text-blue-400 font-semibold"
+          >
+            Login
+          </Link>
+        </p>
 
       </div>
+
     </div>
   );
 }
