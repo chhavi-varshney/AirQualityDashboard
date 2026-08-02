@@ -52,7 +52,7 @@ function ComparisonCard({ data, darkMode }) {
     message = " Indoor Air is Slightly Better";
     color = "text-lime-400";
   } else {
-    message = "⚠ Indoor Air Needs Improvement";
+    message = " Indoor Air Needs Improvement";
     color = "text-red-400";
   }
 
