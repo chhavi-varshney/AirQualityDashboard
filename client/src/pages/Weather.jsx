@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import API from "../services/api";
 
 import Navbar from "../components/Navbar";
@@ -7,25 +7,25 @@ import Sidebar from "../components/Sidebar";
 import SearchBar from "../components/SearchBar";
 import Footer from "../components/Footer";
 
-import AQICard from "../components/AQICard";
 import TemperatureCard from "../components/TemperatureCard";
 import HumidityCard from "../components/HumidityCard";
-import FilterHealthCard from "../components/FilterHealthCard";
-import ComparisonCard from "../components/ComparisonCard";
+import WindCard from "../components/WindCard";
+import PressureCard from "../components/PressureCard";
+import VisibilityCard from "../components/VisibilityCard";
+import FeelsLikeCard from "../components/FeelsLikeCard";
 
-import AirQualityChart from "../components/charts/AirQualityChart";
-
-function Dashboard() {
+function Weather() {
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  const [weatherData, setWeatherData] = useState(null);
-  const [loading, setLoading] = useState(false);
-
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") !== "light"
   );
+
+  const [weatherData, setWeatherData] = useState(null);
+
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -40,24 +40,17 @@ function Dashboard() {
       const res = await API.get(`/air?city=${city}`);
 
       setWeatherData(res.data);
-    } catch (error) {
-      console.log(error);
+
+    } catch (err) {
       alert("City not found");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem(
-      "theme",
-      darkMode ? "dark" : "light"
-    );
-  }, [darkMode]);
-
   return (
     <div
-      className={`min-h-screen transition-all duration-300 ${
+      className={`min-h-screen ${
         darkMode
           ? "bg-slate-950 text-white"
           : "bg-gray-100 text-black"
@@ -70,32 +63,23 @@ function Dashboard() {
         setDarkMode={setDarkMode}
       />
 
-      <div className="flex flex-col lg:flex-row">
+      <div className="flex">
         <Sidebar darkMode={darkMode} />
 
-        <main
-  className={`flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto transition-all duration-300 ${
-            darkMode
-              ? "bg-slate-950 text-white"
-              : "bg-gray-100 text-black"
-          }`}
-        >
+        <main className="flex-1 p-8">
+
           <SearchBar
             onSearch={searchCity}
             darkMode={darkMode}
           />
 
           {loading && (
-            <p className="text-center text-blue-500 mb-6">
+            <h2 className="text-blue-500 text-xl mt-6">
               Loading...
-            </p>
+            </h2>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-            <AQICard
-              data={weatherData}
-              darkMode={darkMode}
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
 
             <TemperatureCard
               data={weatherData}
@@ -107,29 +91,36 @@ function Dashboard() {
               darkMode={darkMode}
             />
 
-            <FilterHealthCard
+            <FeelsLikeCard
               data={weatherData}
               darkMode={darkMode}
             />
 
-            <ComparisonCard
+            <WindCard
               data={weatherData}
               darkMode={darkMode}
             />
+
+            <PressureCard
+              data={weatherData}
+              darkMode={darkMode}
+            />
+
+            <VisibilityCard
+              data={weatherData}
+              darkMode={darkMode}
+            />
+
           </div>
 
-          <AirQualityChart
-            aqi={weatherData?.airQuality?.main?.aqi}
-            darkMode={darkMode}
-          />
-
-          <div className="mt-12">
+          <div className="mt-10">
             <Footer darkMode={darkMode} />
           </div>
+
         </main>
       </div>
     </div>
   );
 }
 
-export default Dashboard;
+export default Weather;

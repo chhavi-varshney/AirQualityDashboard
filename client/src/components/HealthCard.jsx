@@ -101,7 +101,7 @@ function HealthCard({ data }) {
 
         {tips.map((tip, index) => (
           <li key={index} className="text-lg">
-            ✅ {tip}
+             {tip}
           </li>
         ))}
 

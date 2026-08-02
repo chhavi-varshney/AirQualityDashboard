@@ -1,6 +1,12 @@
-function Footer() {
+function Footer({ darkMode }) {
   return (
-    <footer className="mt-10 border-t border-slate-800 pt-6 text-center text-gray-400">
+    <footer
+      className={`text-center py-6 transition-all duration-300 ${
+        darkMode
+          ? "text-slate-400"
+          : "text-gray-600"
+      }`}
+    >
       © 2026 Air Quality Analytics Dashboard
     </footer>
   );
